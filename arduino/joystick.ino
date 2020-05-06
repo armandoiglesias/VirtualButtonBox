@@ -161,7 +161,7 @@ void loop() {
       return;
     }
 
-    Serial.println(c);
+    //Serial.println(c);
 
     ard_command = hc06.read(); // Leemos la orden
     hc06.read();     // Leemos el pin
@@ -174,10 +174,10 @@ void loop() {
       {
         cmd += c;
         c = hc06.read();  
-        Serial.println(c);
+        //Serial.println(c);
       }
       delay(25);
-      Serial.println(cmd);
+      //Serial.println(cmd);
 
       if(cmd == "")
         return;
@@ -188,7 +188,6 @@ void loop() {
   }
     
 }
-
 
 void press(char cadena ) {
   int button = 10;
