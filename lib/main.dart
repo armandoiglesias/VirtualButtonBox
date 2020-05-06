@@ -63,9 +63,7 @@ class ButtonBox extends StatelessWidget {
           connection.output.add(utf8.encode("L"));
           await connection.output.allSent;
 
-          if (connection.isConnected) {
-
-          }
+          if (connection.isConnected) {}
         });
   }
 }
@@ -86,52 +84,49 @@ class _MyHomePageState extends State<MyHomePage> {
   BluetoothConnection _connection;
   _MyHomePageState();
 
-    Widget getButton(String _char) {
+  Widget getButton(String _char) {
     return IconButton(
         icon: Icon(Icons.volume_down),
-        tooltip: _char ,
-        onPressed: () async {
-          //if (await Vibration.hasVibrator()) {
-          //Vibration.vibrate();
-          Vibration.vibrate(duration: 300, amplitude: 128);
-          debugPrint('Tecla : $_char');
-          _sendMessage(_char);
+        tooltip: _char.toUpperCase(),
+        onPressed: () {
+          
           if (_connection.isConnected) {
-
+            Vibration.vibrate(duration: 300, amplitude: 128);
+            debugPrint('Tecla : $_char');
+            _sendMessage(_char);
           }
         });
   }
 
   void getButtonBox() {
-    listado.add( getButton("a") );
-    listado.add( getButton("b") );
-    listado.add( getButton("c") );
-    listado.add( getButton("d") );
-    listado.add( getButton("e") );
-    listado.add( getButton("f") );
-    listado.add( getButton("g") );
-    listado.add( getButton("h") );
-    listado.add( getButton("i") );
-    listado.add( getButton("j") );
-    listado.add( getButton("k") );
-    listado.add( getButton("l") );
-    listado.add( getButton("m") );
-    listado.add( getButton("n") );
-    listado.add( getButton("o") );
-    listado.add( getButton("p") );
-    listado.add( getButton("q") );
-    listado.add( getButton("r") );
-    listado.add( getButton("s") );
-    
-    
+    listado.add(getButton("a"));
+    listado.add(getButton("b"));
+    listado.add(getButton("c"));
+    listado.add(getButton("d"));
+    listado.add(getButton("e"));
+    listado.add(getButton("f"));
+    listado.add(getButton("g"));
+    listado.add(getButton("h"));
+    listado.add(getButton("i"));
+    listado.add(getButton("j"));
+    listado.add(getButton("k"));
+    listado.add(getButton("l"));
+    listado.add(getButton("m"));
+    listado.add(getButton("n"));
+    listado.add(getButton("o"));
+    listado.add(getButton("p"));
+    listado.add(getButton("q"));
+    listado.add(getButton("r"));
+    listado.add(getButton("s"));
   }
 
   void _sendMessage(String _char) async {
-
-    String _message = "* 00L#";
+    String _cadena = _char.toUpperCase();
+    String _message = "* 00$_cadena#";
     debugPrint(_message);
     _connection.output.add(utf8.encode(_message));
-          await _connection.output.allSent;
+    await _connection.output.allSent; 
+    
   }
 
   void _incrementCounter() {
@@ -261,56 +256,58 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(icon: Icon(Icons.bluetooth), onPressed: _gotoBluetooth)
         ],
       ),
-      body: _connection == null  ? Text("Debe Conectar al Bluetooth")  :   GridView.count(
-        primary: false,
-        padding: const EdgeInsets.all(10),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        crossAxisCount: 2,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: GridView.count(
-                primary: false,
-                padding: const EdgeInsets.all(2),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 2,
-                children:
-                    // <Widget>[
-                    this
-                        .listado
-                        .take(4)
-                        .map((listado) => Container(
-                              padding: const EdgeInsets.all(8),
-                              child: listado,
-                              color: Colors.teal[100],
-                            ))
-                        .toList()),
-            color: Colors.teal[100],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: GridView.count(
-                primary: false,
-                padding: const EdgeInsets.all(10),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 3,
-                children: this
-                    .listado
-                    .skip(4)
-                    .take(9)
-                    .map((listado) => Container(
-                          padding: const EdgeInsets.all(8),
-                          child: listado,
-                          color: Colors.teal[100],
-                        ))
-                    .toList()),
-            color: Colors.teal[200],
-          ),
-        ],
-      ),
+      body: _connection == null
+          ? Text("Debe Conectar al Bluetooth")
+          : GridView.count(
+              primary: false,
+              padding: const EdgeInsets.all(10),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              crossAxisCount: 2,
+              children: <Widget>[
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  child: GridView.count(
+                      primary: false,
+                      padding: const EdgeInsets.all(2),
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      crossAxisCount: 2,
+                      children:
+                          // <Widget>[
+                          this
+                              .listado
+                              .take(4)
+                              .map((listado) => Container(
+                                    padding: const EdgeInsets.all(8),
+                                    child: listado,
+                                    color: Colors.teal[100],
+                                  ))
+                              .toList()),
+                  color: Colors.teal[100],
+                ),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  child: GridView.count(
+                      primary: false,
+                      padding: const EdgeInsets.all(10),
+                      crossAxisSpacing: 10,
+                      mainAxisSpacing: 10,
+                      crossAxisCount: 3,
+                      children: this
+                          .listado
+                          .skip(4)
+                          .take(9)
+                          .map((listado) => Container(
+                                padding: const EdgeInsets.all(8),
+                                child: listado,
+                                color: Colors.teal[100],
+                              ))
+                          .toList()),
+                  color: Colors.teal[200],
+                ),
+              ],
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
@@ -319,7 +316,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _connect()  {
+  void _connect() {
     if (_device == null) {
       show('No device selected');
     } else {
