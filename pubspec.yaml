@@ -26,6 +26,7 @@ dependencies:
   # flutter_blue: ^0.7.2
   vibration: ^1.2.4
   flutter_bluetooth_serial: ^0.2.2
+  wakelock: ^0.1.4+1
 
 dev_dependencies:
   flutter_test:

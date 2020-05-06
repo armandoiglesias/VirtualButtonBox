@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:vibration/vibration.dart';
+import 'package:wakelock/wakelock.dart';
 
 void main() => runApp(MyApp());
 
@@ -91,7 +92,7 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {
           
           if (_connection.isConnected) {
-            Vibration.vibrate(duration: 300, amplitude: 128);
+            Vibration.vibrate(duration: 100, amplitude: 128);
             debugPrint('Tecla : $_char');
             _sendMessage(_char);
           }
@@ -150,6 +151,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
     bluetoothConnectionState();
     getButtonBox();
+
+    Wakelock.enable();
   }
 
   @override
@@ -163,6 +166,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     super.dispose();
     _disconnect();
+    Wakelock.disable(); 
   }
 
   Future<void> bluetoothConnectionState() async {
@@ -253,12 +257,12 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.bluetooth), onPressed: _gotoBluetooth)
+          IconButton(icon: Icon(Icons.bluetooth), onPressed: /*_gotoBluetooth*/ _showDialog)
         ],
       ),
-      body: _connection == null
+      body: /*_connection == null
           ? Text("Debe Conectar al Bluetooth")
-          : GridView.count(
+          :*/ GridView.count(
               primary: false,
               padding: const EdgeInsets.all(10),
               crossAxisSpacing: 10,
@@ -376,6 +380,56 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+
+_showDialog() {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          
+          return Dialog(
+
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20.0)
+                  ), //this right here
+              child: Container(
+                height: 200,
+                child: Padding(
+                    padding: const EdgeInsets.all(12.0), child: _buildView()),
+              ) 
+              );
+        }) ?? Navigator.of(context).pop();
+  }
+
+  _buildView(){
+    return Container(
+              height: 200,
+              child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        'Device:',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      DropdownButton(
+                        // To be implemented : _getDeviceItems()
+                        items: _getDeviceItems(),
+                        onChanged: (value) => setState(() => _device = value),
+                        value: _device,
+                      ),
+                      RaisedButton(
+                        onPressed: _connect,
+                        child: Text(_connected ? 'Disconnect' : 'Connect'),
+                      ),
+                    ],
+                  )),
+            );
+
+  }
+
 }
 
 // https://medium.com/flutter-community/flutter-adding-bluetooth-functionality-1b9715ccc698
