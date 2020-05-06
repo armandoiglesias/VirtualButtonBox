@@ -1,7 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:ffi';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
@@ -63,8 +61,11 @@ class ButtonBox extends StatelessWidget {
           Vibration.vibrate(duration: 300, amplitude: 128);
           debugPrint('Tecla : $character');
           connection.output.add(utf8.encode("L"));
+          await connection.output.allSent;
 
-          if (connection.isConnected) {}
+          if (connection.isConnected) {
+
+          }
         });
   }
 }
@@ -72,7 +73,7 @@ class ButtonBox extends StatelessWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
-  final List<ButtonBox> listado = new List<ButtonBox>();
+  final List<Widget> listado = new List<Widget>();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   // Get the instance of the bluetooth
@@ -82,68 +83,55 @@ class _MyHomePageState extends State<MyHomePage> {
   List<BluetoothDevice> _devicesList = [];
   BluetoothDevice _device;
   bool _connected = false;
-
   BluetoothConnection _connection;
-
-  
-
   _MyHomePageState();
 
+    Widget getButton(String _char) {
+    return IconButton(
+        icon: Icon(Icons.volume_down),
+        tooltip: _char ,
+        onPressed: () async {
+          //if (await Vibration.hasVibrator()) {
+          //Vibration.vibrate();
+          Vibration.vibrate(duration: 300, amplitude: 128);
+          debugPrint('Tecla : $_char');
+          _sendMessage(_char);
+          if (_connection.isConnected) {
+
+          }
+        });
+  }
+
   void getButtonBox() {
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "a",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_mute),
-        character: "b",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_up), character: "c", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "d", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "e",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "f", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "g",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_mute),
-        character: "h",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_up), character: "i", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "j", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "k",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "l", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "m",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_mute),
-        character: "n",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_up), character: "o", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "p", connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_down),
-        character: "q",
-        connection: _connection));
-    listado.add(ButtonBox(
-        icon: Icon(Icons.volume_off), character: "r", connection: _connection));
+    listado.add( getButton("a") );
+    listado.add( getButton("b") );
+    listado.add( getButton("c") );
+    listado.add( getButton("d") );
+    listado.add( getButton("e") );
+    listado.add( getButton("f") );
+    listado.add( getButton("g") );
+    listado.add( getButton("h") );
+    listado.add( getButton("i") );
+    listado.add( getButton("j") );
+    listado.add( getButton("k") );
+    listado.add( getButton("l") );
+    listado.add( getButton("m") );
+    listado.add( getButton("n") );
+    listado.add( getButton("o") );
+    listado.add( getButton("p") );
+    listado.add( getButton("q") );
+    listado.add( getButton("r") );
+    listado.add( getButton("s") );
+    
+    
+  }
+
+  void _sendMessage(String _char) async {
+
+    String _message = "* 00L#";
+    debugPrint(_message);
+    _connection.output.add(utf8.encode(_message));
+          await _connection.output.allSent;
   }
 
   void _incrementCounter() {
@@ -273,7 +261,7 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(icon: Icon(Icons.bluetooth), onPressed: _gotoBluetooth)
         ],
       ),
-      body: GridView.count(
+      body: _connection == null  ? Text("Debe Conectar al Bluetooth")  :   GridView.count(
         primary: false,
         padding: const EdgeInsets.all(10),
         crossAxisSpacing: 10,
@@ -331,7 +319,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _connect() async {
+  void _connect()  {
     if (_device == null) {
       show('No device selected');
     } else {
@@ -345,10 +333,11 @@ class _MyHomePageState extends State<MyHomePage> {
           //         .add(utf8.encode("*" + String.fromCharCode(12) + "00L#"));
           //   });
           // }
+          _connection = response;
 
-          setState(() {
-            _connection = response;
-          });
+          // setState(() {
+          //   _connection = response;
+          // });
         });
       });
     }
