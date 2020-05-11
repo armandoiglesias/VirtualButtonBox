@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
           // is not restarted.
           primarySwatch: Colors.blue),
       home: MyHomePage(title: 'Virtual Button Box'),
+      debugShowCheckedModeBanner: false,
     );
   }
 }
@@ -85,40 +86,66 @@ class _MyHomePageState extends State<MyHomePage> {
   BluetoothConnection _connection;
   _MyHomePageState();
 
-  Widget getButton(String _char) {
-    return IconButton(
-        icon: Icon(Icons.volume_down),
-        tooltip: _char.toUpperCase(),
-        onPressed: () {
-          
-          if (_connection.isConnected) {
-            Vibration.vibrate(duration: 100, amplitude: 128);
-            debugPrint('Tecla : $_char');
-            _sendMessage(_char);
-          }
-        });
+  Widget getButton(String _char, String iconName ) {
+    return RawMaterialButton(
+      onPressed: () {
+        // if ( _connection == null ){
+        //   show("Debe seleccionar un dispositivo Bluetooth");
+        //   return ;
+        // }
+
+        if (_connection.isConnected ) {
+          Vibration.vibrate(duration: 100, amplitude: 128);
+          // debugPrint('Tecla : $_char');
+          _sendMessage(_char);
+        } 
+      },
+      elevation: 3.0,
+      fillColor: Colors.white,
+      child: Image(image: AssetImage( iconName == null ? "assets/images/warning.png" : "assets/images/$iconName")), 
+      // Icon(
+      //   Icons.pause,
+      //   //size: 35.0,
+      // ),
+      padding: EdgeInsets.all(15.0),
+      shape: CircleBorder(),
+    );
+
+    // return IconButton(
+    //     icon: Icon(Icons.volume_down),
+    //     tooltip: _char.toUpperCase(),
+    //     onPressed: () {
+
+    //       if (_connection.isConnected) {
+    //         Vibration.vibrate(duration: 100, amplitude: 128);
+    //         debugPrint('Tecla : $_char');
+    //         _sendMessage(_char);
+    //       }else{
+    //         show("Debe seleccionar un dispositivo Bluetooth");
+    //       }
+    //     });
   }
 
   void getButtonBox() {
-    listado.add(getButton("a"));
-    listado.add(getButton("b"));
-    listado.add(getButton("c"));
-    listado.add(getButton("d"));
-    listado.add(getButton("e"));
-    listado.add(getButton("f"));
-    listado.add(getButton("g"));
-    listado.add(getButton("h"));
-    listado.add(getButton("i"));
-    listado.add(getButton("j"));
-    listado.add(getButton("k"));
-    listado.add(getButton("l"));
-    listado.add(getButton("m"));
-    listado.add(getButton("n"));
-    listado.add(getButton("o"));
-    listado.add(getButton("p"));
-    listado.add(getButton("q"));
-    listado.add(getButton("r"));
-    listado.add(getButton("s"));
+    listado.add(getButton("a", "start_engine_icon.png"));
+    listado.add(getButton("b", "hazard.png"));
+    listado.add(getButton("c", "camera_icon.png"));
+    listado.add(getButton("d", "gps.png"));
+    listado.add(getButton("e", null));
+    listado.add(getButton("f", null));
+    listado.add(getButton("g", null));
+    listado.add(getButton("h", null));
+    listado.add(getButton("i", null));
+    listado.add(getButton("j", null));
+    listado.add(getButton("k", null));
+    listado.add(getButton("l", null));
+    listado.add(getButton("m", null));
+    listado.add(getButton("n", null));
+    listado.add(getButton("o", null));
+    listado.add(getButton("p", null));
+    listado.add(getButton("q", null));
+    listado.add(getButton("r", null));
+    listado.add(getButton("s", null));
   }
 
   void _sendMessage(String _char) async {
@@ -126,8 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
     String _message = "* 00$_cadena#";
     debugPrint(_message);
     _connection.output.add(utf8.encode(_message));
-    await _connection.output.allSent; 
-    
+    await _connection.output.allSent;
   }
 
   void _incrementCounter() {
@@ -166,7 +192,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
     super.dispose();
     _disconnect();
-    Wakelock.disable(); 
+    Wakelock.disable();
   }
 
   Future<void> bluetoothConnectionState() async {
@@ -257,66 +283,70 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
         actions: <Widget>[
-          IconButton(icon: Icon(Icons.bluetooth), onPressed: /*_gotoBluetooth*/ _showDialog)
+          IconButton(
+              icon: Icon(Icons.bluetooth),
+              onPressed: /*_gotoBluetooth*/ _showDialog)
         ],
       ),
-      body: /*_connection == null
+      body:
+          /*_connection == null
           ? Text("Debe Conectar al Bluetooth")
-          :*/ GridView.count(
-              primary: false,
-              padding: const EdgeInsets.all(10),
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-              crossAxisCount: 2,
-              children: <Widget>[
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  child: GridView.count(
-                      primary: false,
-                      padding: const EdgeInsets.all(2),
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      crossAxisCount: 2,
-                      children:
-                          // <Widget>[
-                          this
-                              .listado
-                              .take(4)
-                              .map((listado) => Container(
-                                    padding: const EdgeInsets.all(8),
-                                    child: listado,
-                                    color: Colors.teal[100],
-                                  ))
-                              .toList()),
-                  color: Colors.teal[100],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  child: GridView.count(
-                      primary: false,
-                      padding: const EdgeInsets.all(10),
-                      crossAxisSpacing: 10,
-                      mainAxisSpacing: 10,
-                      crossAxisCount: 3,
-                      children: this
-                          .listado
-                          .skip(4)
-                          .take(9)
-                          .map((listado) => Container(
-                                padding: const EdgeInsets.all(8),
-                                child: listado,
-                                color: Colors.teal[100],
-                              ))
-                          .toList()),
-                  color: Colors.teal[200],
-                ),
-              ],
-            ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          :*/
+          GridView.count(
+        primary: false,
+        padding: const EdgeInsets.all(10),
+        crossAxisSpacing: 10,
+        mainAxisSpacing: 10,
+        crossAxisCount: 2,
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: GridView.count(
+                primary: false,
+                padding: const EdgeInsets.all(2),
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                crossAxisCount: 2,
+                children:
+                    // <Widget>[
+                    this
+                        .listado
+                        .take(4)
+                        .map((listado) => Container(
+                              padding: const EdgeInsets.all(8),
+                              child: listado,
+                              //color: Colors.teal[100],
+                            ))
+                        .toList()),
+            //color: Colors .teal[100],
+          ),
+          Container(
+            padding: const EdgeInsets.all(8),
+            child: GridView.count(
+                primary: false,
+                padding: const EdgeInsets.all(10),
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+                crossAxisCount: 3,
+                children: this
+                    .listado
+                    .skip(4)
+                    .take(9)
+                    .map((listado) => Container(
+                          padding: const EdgeInsets.all(8),
+                          child: listado,
+                          // color: Colors.teal[100],
+                        ))
+                    .toList()),
+            // color: Colors.teal[200],
+          ),
+        ],
+      ),
+      // floatingActionButton: FloatingActionButton(
+      //   onPressed: _incrementCounter,
+      //   tooltip: 'Increment',
+      //   child: Icon(Icons.add),
+      // ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 
@@ -381,55 +411,52 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-_showDialog() {
+  _showDialog() {
     showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          
-          return Dialog(
-
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20.0)
-                  ), //this right here
-              child: Container(
-                height: 200,
-                child: Padding(
-                    padding: const EdgeInsets.all(12.0), child: _buildView()),
-              ) 
-              );
-        }) ?? Navigator.of(context).pop();
+            context: context,
+            builder: (BuildContext context) {
+              return Dialog(
+                  shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(20.0)), //this right here
+                  child: Container(
+                    height: 200,
+                    child: Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: _buildView()),
+                  ));
+            }) ??
+        Navigator.of(context).pop();
   }
 
-  _buildView(){
+  _buildView() {
     return Container(
-              height: 200,
-              child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        'Device:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      DropdownButton(
-                        // To be implemented : _getDeviceItems()
-                        items: _getDeviceItems(),
-                        onChanged: (value) => setState(() => _device = value),
-                        value: _device,
-                      ),
-                      RaisedButton(
-                        onPressed: _connect,
-                        child: Text(_connected ? 'Disconnect' : 'Connect'),
-                      ),
-                    ],
-                  )),
-            );
-
+      height: 200,
+      child: Padding(
+          padding: const EdgeInsets.all(12.0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              Text(
+                'Device:',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              DropdownButton(
+                // To be implemented : _getDeviceItems()
+                items: _getDeviceItems(),
+                onChanged: (value) => setState(() => _device = value),
+                value: _device,
+              ),
+              RaisedButton(
+                onPressed: _connect,
+                child: Text(_connected ? 'Disconnect' : 'Connect'),
+              ),
+            ],
+          )),
+    );
   }
-
 }
 
 // https://medium.com/flutter-community/flutter-adding-bluetooth-functionality-1b9715ccc698

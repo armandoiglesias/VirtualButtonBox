@@ -223,3 +223,5 @@ void press(char cadena ) {
 
 }
 
+// https://www.aranacorp.com/es/comunicacion-con-arduino-y-el-modulo-hc-06/
+
