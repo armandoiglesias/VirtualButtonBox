@@ -6,7 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:vibration/vibration.dart';
+import 'package:virtual_button_box/button.dart';
 import 'package:wakelock/wakelock.dart';
+
+import 'package:virtual_button_box/providers/db_provider.dart';
+
+import 'button.dart';
 
 void main() => runApp(MyApp());
 
@@ -54,24 +59,29 @@ class ButtonBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return IconButton(
+    return FlatButton(
+      autofocus: false,
+      onPressed: () async {
+        //if (await Vibration.hasVibrator()) {
+        //Vibration.vibrate();
+        Vibration.vibrate(duration: 300, amplitude: 128);
+        debugPrint('Tecla : $character');
+        connection.output.add(utf8.encode("L"));
+        await connection.output.allSent;
+
+        if (connection.isConnected) {}
+      },
+      child: IconButton(
         icon: icon,
         tooltip: character,
-        onPressed: () async {
-          //if (await Vibration.hasVibrator()) {
-          //Vibration.vibrate();
-          Vibration.vibrate(duration: 300, amplitude: 128);
-          debugPrint('Tecla : $character');
-          connection.output.add(utf8.encode("L"));
-          await connection.output.allSent;
-
-          if (connection.isConnected) {}
-        });
+        onPressed: () {},
+      ),
+    );
   }
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  //int _counter = 0;
 
   final List<Widget> listado = new List<Widget>();
 
@@ -86,7 +96,7 @@ class _MyHomePageState extends State<MyHomePage> {
   BluetoothConnection _connection;
   _MyHomePageState();
 
-  Widget getButton(String _char, String iconName ) {
+  Widget getButton(String _char, String iconName) {
     return RawMaterialButton(
       onPressed: () {
         // if ( _connection == null ){
@@ -94,15 +104,18 @@ class _MyHomePageState extends State<MyHomePage> {
         //   return ;
         // }
 
-        if (_connection.isConnected ) {
+        if (_connection.isConnected) {
           Vibration.vibrate(duration: 100, amplitude: 128);
           // debugPrint('Tecla : $_char');
           _sendMessage(_char);
-        } 
+        }
       },
       elevation: 3.0,
       fillColor: Colors.white,
-      child: Image(image: AssetImage( iconName == null ? "assets/images/warning.png" : "assets/images/$iconName")), 
+      child: Image(
+          image: AssetImage(iconName == null
+              ? "assets/images/warning.png"
+              : "assets/images/$iconName")),
       // Icon(
       //   Icons.pause,
       //   //size: 35.0,
@@ -127,10 +140,10 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void getButtonBox() {
-    listado.add(getButton("a", "start_engine_icon.png"));
-    listado.add(getButton("b", "hazard.png"));
-    listado.add(getButton("c", "camera_icon.png"));
-    listado.add(getButton("d", "gps.png"));
+    listado.add(ActionButton(connection: _connection, character: "a"));
+    listado.add(ActionButton(character: "b", connection: _connection));
+    listado.add(ActionButton(character: "c", connection: _connection));
+    listado.add(ActionButton(character: "d", connection: _connection));
     listado.add(getButton("e", null));
     listado.add(getButton("f", null));
     listado.add(getButton("g", null));
@@ -154,17 +167,6 @@ class _MyHomePageState extends State<MyHomePage> {
     debugPrint(_message);
     _connection.output.add(utf8.encode(_message));
     await _connection.output.allSent;
-  }
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
   }
 
   @override
@@ -232,42 +234,42 @@ class _MyHomePageState extends State<MyHomePage> {
     });
   }
 
-  _gotoBluetooth() {
-    Navigator.of(context).push(
-      MaterialPageRoute<void>(builder: (BuildContext context) {
-        return Scaffold(
-            appBar: AppBar(
-              title: Text('Linked Bluetooth'),
-            ),
-            body: Container(
-              height: 200,
-              child: Padding(
-                  padding: const EdgeInsets.all(12.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Text(
-                        'Device:',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      DropdownButton(
-                        // To be implemented : _getDeviceItems()
-                        items: _getDeviceItems(),
-                        onChanged: (value) => setState(() => _device = value),
-                        value: _device,
-                      ),
-                      RaisedButton(
-                        onPressed: _connect,
-                        child: Text(_connected ? 'Disconnect' : 'Connect'),
-                      ),
-                    ],
-                  )),
-            ));
-      }),
-    );
-  }
+  // _gotoBluetooth() {
+  //   Navigator.of(context).push(
+  //     MaterialPageRoute<void>(builder: (BuildContext context) {
+  //       return Scaffold(
+  //           appBar: AppBar(
+  //             title: Text('Linked Bluetooth'),
+  //           ),
+  //           body: Container(
+  //             height: 200,
+  //             child: Padding(
+  //                 padding: const EdgeInsets.all(12.0),
+  //                 child: Row(
+  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //                   children: <Widget>[
+  //                     Text(
+  //                       'Device:',
+  //                       style: TextStyle(
+  //                         fontWeight: FontWeight.bold,
+  //                       ),
+  //                     ),
+  //                     DropdownButton(
+  //                       // To be implemented : _getDeviceItems()
+  //                       items: _getDeviceItems(),
+  //                       onChanged: (value) => setState(() => _device = value),
+  //                       value: _device,
+  //                     ),
+  //                     RaisedButton(
+  //                       onPressed: _connect,
+  //                       child: Text(_connected ? 'Disconnect' : 'Connect'),
+  //                     ),
+  //                   ],
+  //                 )),
+  //           ));
+  //     }),
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -277,6 +279,9 @@ class _MyHomePageState extends State<MyHomePage> {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
+
+    DbProvider.db.database;
+
     return Scaffold(
       appBar: AppBar(
         // Here we take the value from the MyHomePage object that was created by
@@ -300,7 +305,7 @@ class _MyHomePageState extends State<MyHomePage> {
         crossAxisCount: 2,
         children: <Widget>[
           Container(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(3),
             child: GridView.count(
                 primary: false,
                 padding: const EdgeInsets.all(2),
@@ -313,7 +318,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         .listado
                         .take(4)
                         .map((listado) => Container(
-                              padding: const EdgeInsets.all(8),
+                              padding: const EdgeInsets.all(5),
                               child: listado,
                               //color: Colors.teal[100],
                             ))
@@ -333,7 +338,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     .skip(4)
                     .take(9)
                     .map((listado) => Container(
-                          padding: const EdgeInsets.all(8),
+                          padding: const EdgeInsets.all(4),
                           child: listado,
                           // color: Colors.teal[100],
                         ))

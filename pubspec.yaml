@@ -1,5 +1,5 @@
-name: virtual_button_bo
-description: A new Flutter project.
+name: virtual_button_box
+description: Virtual Button Box, connect it to your PC through an arduino Leonardo/Micro and add an external Keyboard.
 
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
@@ -27,6 +27,8 @@ dependencies:
   vibration: ^1.2.4
   flutter_bluetooth_serial: ^0.2.2
   wakelock: ^0.1.4+1
+  image_picker: ^0.6.7+22
+  sqflite: ^1.3.0
 
 dev_dependencies:
   flutter_test:
