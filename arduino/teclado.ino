@@ -1,6 +1,6 @@
-#include <Joystick.h>
-#include <SoftwareSerial.h>
+#include <Keyboard.h>
 
+#include <SoftwareSerial.h>
 SoftwareSerial hc06(8, 9);
 
 #define START_CMD_CHAR '*'
@@ -17,23 +17,29 @@ SoftwareSerial hc06(8, 9);
 
 String inText;
 
+char ctrlKey = KEY_LEFT_CTRL;
+char altKey = KEY_LEFT_ALT;
+char shiftKey = KEY_LEFT_SHIFT;
+
 bool izquierda = false;
 bool derecha = false;
 bool encendidas = false;
 bool parking = false;
 bool altas = false;
 
-int parkingLPort  = 12;
+int parkingLPort  = 12; 
 int ligthPort  = 11;
 int LLPort  = 10;
 //int RLPort  = 9;
 //int HLPort  = 8;
 
-Joystick_ Joystick;
+//Joystick_ Joystick;
 
 void setup() {
   // Initialize Joystick Library
-  Joystick.begin();
+  //Joystick.begin();
+  Keyboard.begin();
+  
   hc06.begin(9600);
 
   Serial.begin(9600);
@@ -43,24 +49,10 @@ void setup() {
     ; // wait for serial port to connect. Needed for Leonardo only
   }
 
-  pinMode( 12, INPUT_PULLUP );
-  pinMode( 11, INPUT_PULLUP );
-  pinMode( 10, INPUT_PULLUP );
-  //pinMode(  9, INPUT_PULLUP );
-  //pinMode(  8, INPUT_PULLUP );
 
 }
 
 void loop() {
-  // Read pin values
-  /*
-    int currentButtonState = !digitalRead(pinToButtonMap);
-    if (currentButtonState != lastButtonState)
-    {
-    Joystick.setButton(0, currentButtonState);
-    lastButtonState = currentButtonState;
-    }
-  */
   char ard_command = ' ';
   int pin_num = 0;
   int pin_value = 0;
@@ -103,16 +95,14 @@ void loop() {
 }
 
 void press(char cadena ) {
-  int button = (int)cadena - 0x41 ;
 
-  //Keyboard.press(cadena);
-  Joystick.pressButton(button);
-  delay(50);
-  Joystick.releaseButton(button);
-  //Keyboard.releaseAll();
-
+  Keyboard.press(ctrlKey);
+  Keyboard.press(altKey);
+  Keyboard.press(shiftKey);
+  Keyboard.press(cadena);
+  delay(100);
+  Keyboard.releaseAll();
 
 }
 
-// https://www.aranacorp.com/es/comunicacion-con-arduino-y-el-modulo-hc-06/
 

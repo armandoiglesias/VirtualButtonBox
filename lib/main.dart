@@ -10,6 +10,7 @@ import 'package:virtual_button_box/button.dart';
 import 'package:wakelock/wakelock.dart';
 
 import 'package:virtual_button_box/providers/db_provider.dart';
+import 'package:virtual_button_box/providers/bluetooth_provider.dart';
 
 import 'button.dart';
 
@@ -43,46 +44,44 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
-  final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
+  // final List<BluetoothDevice> devicesList = new List<BluetoothDevice>();
 
   @override
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class ButtonBox extends StatelessWidget {
-  final Icon icon;
-  final String character;
-  // final FlutterBluetoothSerial bluetooth;
-  final BluetoothConnection connection;
+// class ButtonBox extends StatelessWidget {
+//   final Icon icon;
+//   final String character;
+//   // final FlutterBluetoothSerial bluetooth;
+//   final BluetoothConnection connection;
 
-  ButtonBox({this.icon, this.character, this.connection});
+//   ButtonBox({this.icon, this.character, this.connection});
 
-  @override
-  Widget build(BuildContext context) {
-    return FlatButton(
-      autofocus: false,
-      onPressed: () async {
-        //if (await Vibration.hasVibrator()) {
-        //Vibration.vibrate();
-        Vibration.vibrate(duration: 300, amplitude: 128);
-        debugPrint('Tecla : $character');
-        connection.output.add(utf8.encode("L"));
-        await connection.output.allSent;
+//   @override
+//   Widget build(BuildContext context) {
+//     return FlatButton(
+//       autofocus: false,
+//       onPressed: () async {
+//         //if (await Vibration.hasVibrator()) {
+//         //Vibration.vibrate();
+//         Vibration.vibrate(duration: 300, amplitude: 128);
+//         debugPrint('Tecla : $character');
+//         connection.output.add(utf8.encode("L"));
+//         await connection.output.allSent;
 
-        if (connection.isConnected) {}
-      },
-      child: IconButton(
-        icon: icon,
-        tooltip: character,
-        onPressed: () {},
-      ),
-    );
-  }
-}
+//         if (connection.isConnected) {}
+//       },
+//       child: IconButton(
+//         icon: icon,
+//         tooltip: character,
+//         onPressed: () {},
+//       ),
+//     );
+//   }
+// }
 
 class _MyHomePageState extends State<MyHomePage> {
-  //int _counter = 0;
-
   final List<Widget> listado = new List<Widget>();
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
@@ -90,24 +89,19 @@ class _MyHomePageState extends State<MyHomePage> {
   FlutterBluetoothSerial bluetooth = FlutterBluetoothSerial.instance;
 
   // Define some variables, which will be required later
-  List<BluetoothDevice> _devicesList = [];
+  // List<BluetoothDevice> _devicesList = [];
   BluetoothDevice _device;
   bool _connected = false;
-  BluetoothConnection _connection;
+  // BluetoothConnection _connection;
   _MyHomePageState();
 
   Widget getButton(String _char, String iconName) {
     return RawMaterialButton(
       onPressed: () {
-        // if ( _connection == null ){
-        //   show("Debe seleccionar un dispositivo Bluetooth");
-        //   return ;
-        // }
-
-        if (_connection.isConnected) {
+        if (BluetoothProvider.btp.isConnected) {
           Vibration.vibrate(duration: 100, amplitude: 128);
           // debugPrint('Tecla : $_char');
-          _sendMessage(_char);
+          BluetoothProvider.btp.sendMessage(_char);
         }
       },
       elevation: 3.0,
@@ -116,57 +110,43 @@ class _MyHomePageState extends State<MyHomePage> {
           image: AssetImage(iconName == null
               ? "assets/images/warning.png"
               : "assets/images/$iconName")),
-      // Icon(
-      //   Icons.pause,
-      //   //size: 35.0,
-      // ),
       padding: EdgeInsets.all(15.0),
       shape: CircleBorder(),
     );
-
-    // return IconButton(
-    //     icon: Icon(Icons.volume_down),
-    //     tooltip: _char.toUpperCase(),
-    //     onPressed: () {
-
-    //       if (_connection.isConnected) {
-    //         Vibration.vibrate(duration: 100, amplitude: 128);
-    //         debugPrint('Tecla : $_char');
-    //         _sendMessage(_char);
-    //       }else{
-    //         show("Debe seleccionar un dispositivo Bluetooth");
-    //       }
-    //     });
   }
 
+  final List<String> letras = [
+    "a",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "h",
+    "i",
+    "j",
+    "k",
+    "l",
+    "m"
+  ];
   void getButtonBox() {
-    listado.add(ActionButton(connection: _connection, character: "a"));
-    listado.add(ActionButton(character: "b", connection: _connection));
-    listado.add(ActionButton(character: "c", connection: _connection));
-    listado.add(ActionButton(character: "d", connection: _connection));
-    listado.add(getButton("e", null));
-    listado.add(getButton("f", null));
-    listado.add(getButton("g", null));
-    listado.add(getButton("h", null));
-    listado.add(getButton("i", null));
-    listado.add(getButton("j", null));
-    listado.add(getButton("k", null));
-    listado.add(getButton("l", null));
-    listado.add(getButton("m", null));
-    listado.add(getButton("n", null));
-    listado.add(getButton("o", null));
-    listado.add(getButton("p", null));
-    listado.add(getButton("q", null));
-    listado.add(getButton("r", null));
-    listado.add(getButton("s", null));
-  }
-
-  void _sendMessage(String _char) async {
-    String _cadena = _char.toUpperCase();
-    String _message = "* 00$_cadena#";
-    debugPrint(_message);
-    _connection.output.add(utf8.encode(_message));
-    await _connection.output.allSent;
+    for (var i = 0; i < 13; i++) {
+      DbProvider.db.getButton(i).then((value) {
+        if (value == null) {
+          listado.add(ActionButton(
+            character: letras[i],
+            indice: i,
+          ));
+        } else {
+          listado.add(ActionButton(
+            character: letras[i],
+            path: value.filePath,
+            indice: value.indice,
+          ));
+        }
+      });
+    }
   }
 
   @override
@@ -177,7 +157,9 @@ class _MyHomePageState extends State<MyHomePage> {
       DeviceOrientation.landscapeLeft,
     ]);
 
-    bluetoothConnectionState();
+    BluetoothProvider.btp.bluetoothConnectionState();
+
+    // bluetoothConnectionState();
     getButtonBox();
 
     Wakelock.enable();
@@ -193,159 +175,78 @@ class _MyHomePageState extends State<MyHomePage> {
     ]);
 
     super.dispose();
-    _disconnect();
     Wakelock.disable();
+
+    DbProvider.db.close();
+    BluetoothProvider.btp.disconnect();
   }
-
-  Future<void> bluetoothConnectionState() async {
-    List<BluetoothDevice> devices = [];
-
-    // To get the list of paired devices
-    try {
-      devices = await bluetooth.getBondedDevices();
-    } on PlatformException {
-      print("Error");
-    }
-
-    // For knowing when bluetooth is connected and when disconnected
-    bluetooth.onStateChanged().listen((state) {
-      if (state.isEnabled) {
-        if (_connection.isConnected) {
-          setState(() {
-            _connected = true;
-          });
-        } else {
-          setState(() {
-            _connected = false;
-          });
-        }
-      }
-    });
-
-    // It is an error to call [setState] unless [mounted] is true.
-    if (!mounted) {
-      return;
-    }
-
-    // Store the [devices] list in the [_devicesList] for accessing
-    // the list outside this class
-    setState(() {
-      _devicesList = devices;
-    });
-  }
-
-  // _gotoBluetooth() {
-  //   Navigator.of(context).push(
-  //     MaterialPageRoute<void>(builder: (BuildContext context) {
-  //       return Scaffold(
-  //           appBar: AppBar(
-  //             title: Text('Linked Bluetooth'),
-  //           ),
-  //           body: Container(
-  //             height: 200,
-  //             child: Padding(
-  //                 padding: const EdgeInsets.all(12.0),
-  //                 child: Row(
-  //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //                   children: <Widget>[
-  //                     Text(
-  //                       'Device:',
-  //                       style: TextStyle(
-  //                         fontWeight: FontWeight.bold,
-  //                       ),
-  //                     ),
-  //                     DropdownButton(
-  //                       // To be implemented : _getDeviceItems()
-  //                       items: _getDeviceItems(),
-  //                       onChanged: (value) => setState(() => _device = value),
-  //                       value: _device,
-  //                     ),
-  //                     RaisedButton(
-  //                       onPressed: _connect,
-  //                       child: Text(_connected ? 'Disconnect' : 'Connect'),
-  //                     ),
-  //                   ],
-  //                 )),
-  //           ));
-  //     }),
-  //   );
-  // }
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
-
-    DbProvider.db.database;
-
     return Scaffold(
-      appBar: AppBar(
-        // Here we take the value from the MyHomePage object that was created by
-        // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.bluetooth),
-              onPressed: /*_gotoBluetooth*/ _showDialog)
-        ],
+      appBar: PreferredSize(
+        child: AppBar(
+          centerTitle: true,
+          // Here we take the value from the MyHomePage object that was created by
+          // the App.build method, and use it to set our appbar title.
+          title: Text(widget.title),
+          actions: <Widget>[
+            IconButton(icon: Icon(Icons.bluetooth), onPressed: _showDialog)
+          ],
+        ),
+        preferredSize:
+            Size.fromHeight(MediaQuery.of(context).size.height * 0.10),
       ),
-      body:
-          /*_connection == null
-          ? Text("Debe Conectar al Bluetooth")
-          :*/
-          GridView.count(
-        primary: false,
-        padding: const EdgeInsets.all(10),
-        crossAxisSpacing: 10,
-        mainAxisSpacing: 10,
-        crossAxisCount: 2,
-        children: <Widget>[
-          Container(
-            padding: const EdgeInsets.all(3),
-            child: GridView.count(
-                primary: false,
-                padding: const EdgeInsets.all(2),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 2,
-                children:
-                    // <Widget>[
-                    this
-                        .listado
-                        .take(4)
-                        .map((listado) => Container(
-                              padding: const EdgeInsets.all(5),
-                              child: listado,
-                              //color: Colors.teal[100],
-                            ))
-                        .toList()),
-            //color: Colors .teal[100],
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            child: GridView.count(
-                primary: false,
-                padding: const EdgeInsets.all(10),
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
-                crossAxisCount: 3,
-                children: this
-                    .listado
-                    .skip(4)
-                    .take(9)
-                    .map((listado) => Container(
-                          padding: const EdgeInsets.all(4),
-                          child: listado,
-                          // color: Colors.teal[100],
-                        ))
-                    .toList()),
-            // color: Colors.teal[200],
-          ),
-        ],
+      body: SafeArea(
+        child: GridView.count(
+          primary: true,
+          crossAxisSpacing: 1,
+          mainAxisSpacing: 10,
+          crossAxisCount: 2,
+          children: <Widget>[
+            Container(
+              padding: const EdgeInsets.all(2),
+              child: GridView.count(
+                  primary: false,
+                  padding: const EdgeInsets.all(10),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 1,
+                  crossAxisCount: 2,
+                  children:
+                      // <Widget>[
+                      this
+                          .listado
+                          .take(4)
+                          .map((listado) => Container(
+                                padding: const EdgeInsets.all(5),
+                                child: listado,
+                                //color: Colors.teal[100],
+                              ))
+                          .toList()),
+              //color: Colors .teal[100],
+            ),
+            Container(
+              padding: const EdgeInsets.all(10),
+              child: GridView.count(
+                  primary: true,
+                  padding: const EdgeInsets.all(10),
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                  crossAxisCount: 3,
+                  children: this
+                      .listado
+                      .skip(4)
+                      .take(9)
+                      .map((listado) => Container(
+                            padding: const EdgeInsets.all(4),
+                            child: listado,
+                            // color: Colors.teal[100],
+                          ))
+                      .toList()),
+              // color: Colors.teal[200],
+            ),
+          ],
+        ),
       ),
       // floatingActionButton: FloatingActionButton(
       //   onPressed: _incrementCounter,
@@ -355,43 +256,15 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
-  void _connect() {
-    if (_device == null) {
-      show('No device selected');
-    } else {
-      bluetooth.isEnabled.then((isConnected) {
-        // if (isConnected) {
-        BluetoothConnection.toAddress(_device.address)
-            .then((BluetoothConnection response) {
-          // for (var i = 0; i < 100; i++) {
-          //   Timer(Duration(milliseconds: 200), () {
-          //     response.output
-          //         .add(utf8.encode("*" + String.fromCharCode(12) + "00L#"));
-          //   });
-          // }
-          _connection = response;
-
-          // setState(() {
-          //   _connection = response;
-          // });
-        });
-      });
-    }
-  }
-
-  // Method to disconnect bluetooth
-  void _disconnect() {
-    _connection.finish();
-  }
-
   List<DropdownMenuItem<BluetoothDevice>> _getDeviceItems() {
     List<DropdownMenuItem<BluetoothDevice>> items = [];
-    if (_devicesList.isEmpty) {
+
+    if (BluetoothProvider.btp.connectedDevices.isEmpty) {
       items.add(DropdownMenuItem(
         child: Text('NONE'),
       ));
     } else {
-      _devicesList.forEach((device) {
+      BluetoothProvider.btp.connectedDevices.forEach((device) {
         items.add(DropdownMenuItem(
           child: Text(device.name),
           value: device,
@@ -455,8 +328,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 value: _device,
               ),
               RaisedButton(
-                onPressed: _connect,
-                child: Text(_connected ? 'Disconnect' : 'Connect'),
+                onPressed: () => BluetoothProvider.btp.isConnected
+                    ? BluetoothProvider.btp.disconnect()
+                    : BluetoothProvider.btp.connect(this._device),
+                child: Text(BluetoothProvider.btp.isConnected
+                    ? 'Disconnect'
+                    : 'Connect'),
               ),
             ],
           )),
